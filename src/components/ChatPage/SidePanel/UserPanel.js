@@ -2,12 +2,13 @@ import React,{useRef} from 'react';
 import {IoMdChatbubbles} from 'react-icons/io';
 import Dropdown from 'react-bootstrap/Dropdown'
 import Image from 'react-bootstrap/Image'
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import firebase from '../../../firebase';
 import mime from 'mime-types'
+import {setPhotoURL} from '../../../redux/actions/user_action'
 function UserPanel() {
     const user = useSelector(state => state.user.currentUser)
-
+    const dispatch = useDispatch();
     const inputOpenImageRef = useRef();
 
     const handleOpenImageRef = () =>{
@@ -26,9 +27,21 @@ function UserPanel() {
                 .child(`user_image/${user.uid}`)
                 .put(file, metadata)
 
-                console.log("uploadTaskSnapeshot",uploadTaskSnapeshot)
-        }catch(error){
+                let downloadURL = await uploadTaskSnapeshot.ref.getDownloadURL();
+                
+                //프로필 이미지 수정
+                await firebase.auth().currentUser.updateProfile({
+                    photoURL: downloadURL
+                })
+                dispatch(setPhotoURL(downloadURL))
+                // console.log("uploadTaskSnapeshot",uploadTaskSnapeshot)
 
+                //데이터베이스 유저 이미지 수정
+                await firebase.database().ref('users')
+                .child(user.uid)
+                .update({image: downloadURL})
+        }catch(error){
+            alert(error)
         }
         //스토리지에 파일 저장하기
 
