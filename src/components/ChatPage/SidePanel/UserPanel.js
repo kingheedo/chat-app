@@ -1,14 +1,38 @@
-import React from 'react';
+import React,{useRef} from 'react';
 import {IoMdChatbubbles} from 'react-icons/io';
 import Dropdown from 'react-bootstrap/Dropdown'
 import Image from 'react-bootstrap/Image'
 import {useSelector} from 'react-redux';
-import firebase from '../../../firebase'
+import firebase from '../../../firebase';
+import mime from 'mime-types'
 function UserPanel() {
     const user = useSelector(state => state.user.currentUser)
 
+    const inputOpenImageRef = useRef();
+
+    const handleOpenImageRef = () =>{
+        inputOpenImageRef.current.click();
+    }
     const handleLogout = () =>{
         firebase.auth().signOut();
+    }
+    const handleUploadImage = async (event) =>{
+        const file = event.target.files[0];
+
+        const metadata = {contentType: mime.lookup(file.name)};
+
+        try{
+            let uploadTaskSnapeshot = await firebase.storage().ref()
+                .child(`user_image/${user.uid}`)
+                .put(file, metadata)
+
+                console.log("uploadTaskSnapeshot",uploadTaskSnapeshot)
+        }catch(error){
+
+        }
+        //스토리지에 파일 저장하기
+
+        console.log(file)
     }
     return (
         <div>
@@ -22,15 +46,17 @@ function UserPanel() {
                  <Image src={user && user.photoURL}
                  style={{width:'30px',height:'30px',marginTop:'3px'}}
                  roundedCircle />
+
+                
                 <Dropdown>
                     <Dropdown.Toggle 
                     style={{background:'transparent',border:'0px'}}
                     id="dropdown-basic">
-                        {user.displayName}
+                        {user && user.displayName}
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu>
-                        <Dropdown.Item href="#/action-1">
+                        <Dropdown.Item onClick={handleOpenImageRef}>
                             프로필 사진 변경
                         </Dropdown.Item>
                         <Dropdown.Item onClick={handleLogout}>
@@ -39,6 +65,13 @@ function UserPanel() {
                     </Dropdown.Menu>
                 </Dropdown>
             </div>
+            <input 
+            onChange={handleUploadImage}
+            accept="image/jpeg, image/png"
+            style={{display:'none'}} 
+                 ref={inputOpenImageRef}
+                 type="file"
+                 />
         </div>
     )
 }
