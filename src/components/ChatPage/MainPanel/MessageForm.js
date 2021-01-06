@@ -28,7 +28,7 @@ function MessageForm() {
         if(fileUrl !== null){
             message["image"] = fileUrl
         }else{
-            message["contents"] = content;
+            message["content"] = content;
         }
         return message;
     }
@@ -68,7 +68,8 @@ function MessageForm() {
             </Form>
             <ProgressBar variant="warning" label="60%" now={60} />
             <div>
-                {errors.map(errorMsg => <p style={{color:'red'}} key={errorMsg}>
+                {errors.map(errorMsg =>
+                <p style={{color:'red'}} key={errorMsg}>
                     {errorMsg}
                 </p>)}
             </div>
