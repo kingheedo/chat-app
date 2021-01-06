@@ -11,10 +11,25 @@ export class ChatRooms extends Component {
         show:false,
         name:"",
         description:"",
-        chatRoomsRef:firebase.database().ref("chatRooms")
+        chatRoomsRef:firebase.database().ref("chatRooms"),
+        chatRooms : []
     }
 
+    componentDidMount(){
+        this.AddChatRoosListeners();
+    }
+    AddChatRoosListeners =() =>{
+        let chatRoomsArray =[];
 
+        this.state.chatRoomsRef.on("child_added", DataSnapshot =>{
+            chatRoomsArray.push(DataSnapshot.val());
+            this.setState({
+                chatRooms: chatRoomsArray
+            })
+        })
+
+
+    }
     handleClose = () => this.setState({show:false});
     handleShow = () => this.setState({show:true});
     handleSubmit = (e) =>{
@@ -52,6 +67,16 @@ export class ChatRooms extends Component {
     }
     isFormValid = (name,description) =>
     name && description;
+
+    renderChatRooms =(chatRooms) =>
+    chatRooms.length > 0 &&
+    chatRooms.map(room =>(
+        <li
+            key={room.id}
+        >
+            # {room.name}
+        </li>
+    ))
     render() {
         return (
             <div>
@@ -72,6 +97,9 @@ export class ChatRooms extends Component {
 
 
                 </div>
+                <ul style={{listStyleType:'none', padding: 0}}>
+                    {this.renderChatRooms(this.state.chatRooms)}
+                </ul>
                 {/* ADD CHAT ROOM MODAL */}
 
                 <Modal show={this.state.show} onHide={this.handleClose}>
