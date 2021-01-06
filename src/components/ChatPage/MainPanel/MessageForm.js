@@ -67,18 +67,35 @@ function MessageForm() {
         if(!file) return;
         const filePath = `/message/public/${file.name}`;
         const metadata = {contentType:mime.lookup(file.name)}
-
+        setLoading(true)
         try{
             //파일을 먼저 스토리지에 저장
            let uploadTask = storageRef.child(filePath).put(file,metadata)
 
            //파일 저장되는 퍼센티지 구하기
-           uploadTask.on("stage_changed", UploadTaskSnapshot =>{
+           uploadTask.on("stage_changed", 
+           UploadTaskSnapshot =>{
                const percentage = Math.round(
                    (UploadTaskSnapshot.bytesTransferred / UploadTaskSnapshot.totalBytes) * 100
                )
                 setPercentage(percentage)
-           })
+           },
+           err => {
+               console.error(err);
+               setLoading(false)
+           },
+           () => {
+               //저장이 다 된 후에 파일 메시지 전송(데이터베이스에 저장)
+            //    저장된 파일을 다운로드 받을 수 있는 URL 가져오기
+            uploadTask.snapshot.ref.getDownloadURL()
+            .then(downloadURL =>{
+                console.log("downloadURL",downloadURL)
+
+                messagesRef.child(chatRoom.id).push().set(createMessage(downloadURL))
+                setLoading(false)
+            })
+           }
+           )
         }catch(error){
             alert(error)
         }
@@ -109,7 +126,8 @@ function MessageForm() {
                     <button 
                     onClick ={handleSubmit}
                     className="message-form-button"
-                    style={{width:'100%'}}>
+                    style={{width:'100%'}}
+                    disabled={loading ? true: false}>
                         SEND
                     </button>
                 </Col>
@@ -117,12 +135,14 @@ function MessageForm() {
                 <button 
                 onClick={handleOpenImageRef}
                     className="message-form-button"
-                    style={{width:'100%'}}>
+                    style={{width:'100%'}}
+                    disabled={loading ? true: false}>
                         UPLOAD
                     </button>
                 </Col>
             </Row>
             <input 
+            accept="image/jpeg, image/png"
             style={{display:'none'}}
             ref={inputOpenImageRef}
             type="file"
