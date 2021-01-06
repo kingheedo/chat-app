@@ -1,17 +1,22 @@
-import React, { useState } from 'react'
+import React, { useState,useRef } from 'react'
 import Form from 'react-bootstrap/Form'
 import ProgressBar from 'react-bootstrap/ProgressBar'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import firebase from '../../../firebase'
 import {useSelector} from 'react-redux'
+import mime from 'mime-types';
 function MessageForm() {
     const chatRoom = useSelector(state => state.chatRoom.currentChatRoom)
     const user = useSelector(state => state.user.currentUser)
     const [content, setContent] = useState("")
     const [errors, setErrors] = useState([])
     const [loading, setLoading] = useState(false)
+    const [percentage, setPercentage] = useState(0)
+
     const messagesRef = firebase.database().ref("messages")
+    const inputOpenImageRef = useRef();
+    const storageRef = firebase.storage().ref();
     const handleChange = (e) =>{
         setContent(e.target.value)
     }
@@ -54,7 +59,30 @@ function MessageForm() {
             }, 5000);
         }
     }
+    const handleOpenImageRef = () =>{
+        inputOpenImageRef.current.click()
+    }
+    const handleUploadImage = (event) =>{
+        const file = event.target.files[0];
+        if(!file) return;
+        const filePath = `/message/public/${file.name}`;
+        const metadata = {contentType:mime.lookup(file.name)}
 
+        try{
+            //파일을 먼저 스토리지에 저장
+           let uploadTask = storageRef.child(filePath).put(file,metadata)
+
+           //파일 저장되는 퍼센티지 구하기
+           uploadTask.on("stage_changed", UploadTaskSnapshot =>{
+               const percentage = Math.round(
+                   (UploadTaskSnapshot.bytesTransferred / UploadTaskSnapshot.totalBytes) * 100
+               )
+                setPercentage(percentage)
+           })
+        }catch(error){
+            alert(error)
+        }
+    }
     return (
         <div>
             <Form onSubmit={handleSubmit}>
@@ -66,7 +94,10 @@ function MessageForm() {
                     onChange={handleChange} />
                 </Form.Group>
             </Form>
-            <ProgressBar variant="warning" label="60%" now={60} />
+            {
+                !(percentage === 0 || percentage === 100) &&
+            <ProgressBar variant="warning" label={`${percentage}%`} now={percentage} />
+            }
             <div>
                 {errors.map(errorMsg =>
                 <p style={{color:'red'}} key={errorMsg}>
@@ -84,12 +115,19 @@ function MessageForm() {
                 </Col>
                 <Col>
                 <button 
+                onClick={handleOpenImageRef}
                     className="message-form-button"
                     style={{width:'100%'}}>
                         UPLOAD
                     </button>
                 </Col>
             </Row>
+            <input 
+            style={{display:'none'}}
+            ref={inputOpenImageRef}
+            type="file"
+            onChange={handleUploadImage}
+             />
         </div>
     )
 }
