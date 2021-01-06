@@ -13,7 +13,7 @@ import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
 
 
-function MessageHeader() {
+function MessageHeader({handleSearchChange}) {
     return (
         <div style={{
             width: '100%',
@@ -35,6 +35,7 @@ function MessageHeader() {
                         </InputGroup.Text>
                         </InputGroup.Prepend>
                         <FormControl
+                        onChange={handleSearchChange}
                         placeholder="Search Messages"
                         aria-label="Search"
                         aria-describedby="basic-addon1"
