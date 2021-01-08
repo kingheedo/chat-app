@@ -4,7 +4,9 @@ import firebase from '../../../firebase'
 import {connect} from 'react-redux'
 export class DirectMessages extends Component {
     state ={
-        usersRef: firebase.database().ref("users")
+        usersRef: firebase.database().ref("users"),
+        users:[],
+
     }
     componentDidMount(){
         if(this.props.user){
@@ -26,10 +28,25 @@ export class DirectMessages extends Component {
             }
         })
     }
-    renderDirectMessages = () =>{
-
+    getChatRoomId = (userId) =>{
+        const currentUserId = this.props.user.uid
+        return userId > currentUserId
+        ? `${userId}/${currentUserId}`
+        :`${currentUserId}/${userId}`
     }
+    changeChatRoom = (user) =>{
+        const chatRoomId = this.getChatRoomId(user.uid);
+    }
+    renderDirectMessages = users =>
+        users.length>0 &&
+        users.map(user =>(
+            <li key={user.uid} onClick={()=> this.changeChatRoom(user)}>
+               # {user.name}
+            </li>
+        ))
+    
     render() {
+        const {users} = this.state;
         console.log('users',this.state.users)
         return (
             <div>
@@ -37,7 +54,7 @@ export class DirectMessages extends Component {
                 <FaRegSmile style={{marginRight :3}}/> DIRECT MESSAGES(1)
                 </span>
                 <ul>
-                    {this.renderDirectMessages()}
+                    {this.renderDirectMessages(users)}
                 </ul>
             </div>
         )
