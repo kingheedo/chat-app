@@ -7,6 +7,7 @@ import Form from 'react-bootstrap/Form';
 import {connect} from 'react-redux';
 import firebase from '../../../firebase';
 import {setCurrentChatRoom, setPrivateChatRoom} from '../../../redux/actions/chatRoom_action'
+import Badge from 'react-bootstrap/Badge'
 export class ChatRooms extends Component {
     state={
         show:false,
@@ -99,6 +100,9 @@ export class ChatRooms extends Component {
             onClick={()=> this.changeChatRoom(room)}
         >
             # {room.name}
+            <Badge style={{float:'right' ,marginTop: '4px'}} variant="danger">
+                1
+            </Badge>
         </li>
     ))
     render() {
