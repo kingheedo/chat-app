@@ -1,10 +1,10 @@
-import React from 'react'
+import React,{useState} from 'react'
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import {FaLock} from 'react-icons/fa';
 import {FaLockOpen} from 'react-icons/fa';
-import {MdFavorite} from 'react-icons/md';
+import {MdFavorite, MdFavoriteBorder} from 'react-icons/md';
 import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import {AiOutlineSearch} from 'react-icons/ai'
@@ -13,10 +13,38 @@ import Accordion from 'react-bootstrap/Accordion'
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
 import {useSelector} from 'react-redux'
-
+import firebase from '../../../firebase'
 function MessageHeader({handleSearchChange}) {
     const chatRoom = useSelector(state => state.chatRoom.currentChatRoom)
     const isPrivateChatRoom = useSelector(state => state.chatRoom.isPrivateChatRoom)
+    const [isFavorited, setIsFavorited] = useState(false)
+    const usersRef = firebase.database().ref("users");
+    const user = useSelector(state => state.user.currentUser)
+    const handleFavorite = () =>{
+        if(isFavorited){
+            usersRef
+            .child(`${user.uid}/favorited`)
+            .child(chatRoom.id)
+            .remove(err =>{
+                if(err !== null){
+                    console.log(err);
+                }
+            })
+            setIsFavorited(prev => !prev)
+        }else{
+            usersRef.child(`${user.uid}/favorited`).update({
+                [chatRoom.id] : {
+                    name: chatRoom.name,
+                    descriptiono: chatRoom.description,
+                    createdBy: {
+                        name: chatRoom.createdBy.name,
+                        image:chatRoom.createdBy.image
+                    }
+                }
+            })
+            setIsFavorited(prev => !prev)
+        }
+    }
     return (
         <div style={{
             width: '100%',
@@ -35,7 +63,20 @@ function MessageHeader({handleSearchChange}) {
                     :<FaLockOpen style={{marginBottom: '10px'}}/>    
                 }
                     {chatRoom && chatRoom.name}
-                <MdFavorite/></h2>
+                        
+                    {!isPrivateChatRoom &&
+                    <span style={{cursor:'pointer'}} onClick ={handleFavorite}>
+                        {isFavorited ?
+                        
+                    <MdFavorite style={{marginBottom: '10px'}}/>
+                    
+                    :
+                    <MdFavoriteBorder style={{marginBottom:'10px'}}/>
+                }
+                    </span>
+                }
+                </h2>
+
                 </Col>
                 <Col>
                 <InputGroup className="mb-3">
