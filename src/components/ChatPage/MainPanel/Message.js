@@ -8,9 +8,14 @@ function Message({message,user}) {
         const isImage = message =>{
             return message.hasOwnProperty("image") && !message.hasOwnProperty("content");
         }
+        const isMessageMine = (message, user)=>{
+            if(user){
+                return message.user.id === user.uid
+            }
+        }
         
     return (
-        <Media>
+        <Media style={{marginBottom: '3px'}}>
         <img
             style={{borderRadius:'10px'}}
             width={48}
@@ -19,7 +24,7 @@ function Message({message,user}) {
             src={message.user.image}
             alt={message.user.name}
         />
-        <Media.Body>
+        <Media.Body style={{backgroundColor: isMessageMine(message,user) && "#ECECEC"}}>
             <h6>
                 {message.user.name}
                 <span style={{fontSize:'10px',color:'gray'}}>
