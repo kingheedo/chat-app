@@ -14,6 +14,14 @@ export class Favorited extends Component {
         this.addListeners(this.props.user.uid)
         }
     }
+    componentWillUnmount() {
+        if(this.props.user){
+            this.removeListener(this.props.user.uid);
+        }
+    }
+    removeListener = (userId) => {
+        this.state.usersRef.child(`${userId}/favorited`).off();
+    }
     addListeners = (userId) =>{
         const {usersRef} = this.state;
 
