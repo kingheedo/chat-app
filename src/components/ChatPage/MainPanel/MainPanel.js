@@ -109,8 +109,13 @@ export class MainPanel extends Component {
            />
         ))
     }
+    renderTypingUsers = (typingUsers) =>
+    typingUsers.length > 0 &&
+    typingUsers.map(user => (
+        <span>{user.name}님이 채팅을 입력하고 있습니다.</span>
+    ))
     render() {
-        const {messages,searchTerm,searchResults} = this.state;
+        const {messages,searchTerm,searchResults, typingUsers} = this.state;
         return (
             <div style={{padding:'2rem 2rem 0 2rem'}}>
 
@@ -129,6 +134,8 @@ export class MainPanel extends Component {
                         this.renderMessages(searchResults)
                         :
                         this.renderMessages(messages)}
+
+                        {this.renderTypingUsers(typingUsers)}
                     </div>
 
                     <MessageForm/>
