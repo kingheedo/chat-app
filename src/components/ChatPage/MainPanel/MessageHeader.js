@@ -38,8 +38,8 @@ function MessageHeader({handleSearchChange}) {
         .then(data =>{
             if(data.val() !== null){
                 const chatRoomIds = Object.keys(data.val());
-                console.log('data.val()',data.val())
-                console.log('chatRoomIds',chatRoomIds)
+                // console.log('data.val()',data.val())
+                // console.log('chatRoomIds',chatRoomIds)
                 const isAlreadyFavorited = chatRoomIds.includes(chatRoomId)
                 setIsFavorited(isAlreadyFavorited)
             }
@@ -71,6 +71,7 @@ function MessageHeader({handleSearchChange}) {
         }
     }
     const renderUserPosts= (userPosts) =>
+
         Object.entries(userPosts)
         .sort((a,b) => b[1].count - a[1].count)
         .map(([key,val],i) =>(
@@ -91,7 +92,7 @@ function MessageHeader({handleSearchChange}) {
                 </Media.Body>
             </Media>
         ))
-    
+            
     return (
         <div style={{
             width: '100%',
@@ -141,13 +142,16 @@ function MessageHeader({handleSearchChange}) {
                     </InputGroup>
                 </Col>
             </Row>
+            {!isPrivateChatRoom &&
             <div style={{display:'flex', justifyContent:'flex-end'}}>
-                <p>
-                    <Image src ={chatRoom && chatRoom.createdBy.image}
-                        roundedCircle style={{width:'30px',height:'30px'}}
-                    />{" "} {chatRoom && chatRoom.createdBy.name}
-                </p>
-            </div>
+            <p>
+                <Image src ={chatRoom && chatRoom.createdBy.image}
+                    roundedCircle style={{width:'30px',height:'30px'}}
+                />{" "} {chatRoom && chatRoom.createdBy.name}
+            </p>
+        </div>
+            }
+            
             <Row>
                 <Col>
                 <Accordion>
