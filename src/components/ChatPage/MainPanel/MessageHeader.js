@@ -2,6 +2,7 @@ import React,{useEffect, useState} from 'react'
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Media from 'react-bootstrap/Media'
 import {FaLock} from 'react-icons/fa';
 import {FaLockOpen} from 'react-icons/fa';
 import {MdFavorite, MdFavoriteBorder} from 'react-icons/md';
@@ -20,6 +21,7 @@ function MessageHeader({handleSearchChange}) {
     const [isFavorited, setIsFavorited] = useState(false)
     const usersRef = firebase.database().ref("users");
     const user = useSelector(state => state.user.currentUser)
+    const userPosts = useSelector(state => state.chatRoom.userPosts)
     useEffect(() => {
 
         if(chatRoom && user) {
@@ -68,6 +70,28 @@ function MessageHeader({handleSearchChange}) {
             setIsFavorited(prev => !prev)
         }
     }
+    const renderUserPosts= (userPosts) =>
+        Object.entries(userPosts)
+        .sort((a,b) => b[1].count - a[1].count)
+        .map(([key,val],i) =>(
+            <Media key={i}>
+                <img
+                    style={{borderRadius:25}}
+                    width={48}
+                    hegith={48}
+                    className="mr-3"
+                    src={val.image}
+                    alt={val.name}
+                />
+                <Media.Body>
+                    <h6>{key}</h6>
+                    <p>
+                        {val.count} 개
+                    </p>
+                </Media.Body>
+            </Media>
+        ))
+    
     return (
         <div style={{
             width: '100%',
@@ -146,11 +170,13 @@ function MessageHeader({handleSearchChange}) {
                     <Card>
                         <Card.Header style={{padding:'0 1rem'}}>
                         <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                            Click me!
+                            Posts Count
                         </Accordion.Toggle>
                         </Card.Header>
                         <Accordion.Collapse eventKey="0">
-                        <Card.Body>Hello! I'm the body</Card.Body>
+                        <Card.Body>
+                        {userPosts && renderUserPosts(userPosts)}
+                        </Card.Body>
                         </Accordion.Collapse>
                     </Card>
                     </Accordion>

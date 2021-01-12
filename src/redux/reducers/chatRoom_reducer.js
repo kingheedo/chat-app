@@ -24,7 +24,7 @@ export default function(state = initialChatRoomState, action){
                 case SET_USER_POSTS:
                     return{
                         ...state,
-                        usersPosts : action.payload
+                        userPosts : action.payload
                     }
             default:
                 return state;
