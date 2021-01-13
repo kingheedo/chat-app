@@ -5,6 +5,8 @@ import MessageForm from './MessageForm'
 import {connect} from 'react-redux'
 import firebase from '../../../firebase'
 import {setUserPosts} from '../../../redux/actions/chatRoom_action';
+import Skeleton from '../../../commons/components/Skeleton'
+
 export class MainPanel extends Component {
 
     messageEndRef = React.createRef();
@@ -160,8 +162,17 @@ export class MainPanel extends Component {
     typingUsers.map(user => (
         <span>{user.name}님이 채팅을 입력하고 있습니다.</span>
     ))
+
+    renderMessagesSkeleton=(loading) =>
+    loading && (
+        <>
+            {[...Array(10)].map((v,i) =>(
+                <Skeleton key={i}/>
+            ))}
+        </>
+    )
     render() {
-        const {messages,searchTerm,searchResults, typingUsers} = this.state;
+        const {messages,searchTerm,searchResults, typingUsers,messagesLoading} = this.state;
         return (
             <div style={{padding:'2rem 2rem 0 2rem'}}>
 
@@ -176,6 +187,7 @@ export class MainPanel extends Component {
                         marginBottom:'1rem',
                         overflowY:'auto'
                     }}>
+                        {this.renderMessagesSkeleton(messagesLoading)}
                         {searchTerm ? 
                         this.renderMessages(searchResults)
                         :
