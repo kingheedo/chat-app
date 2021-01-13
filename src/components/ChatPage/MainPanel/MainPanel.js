@@ -6,6 +6,8 @@ import {connect} from 'react-redux'
 import firebase from '../../../firebase'
 import {setUserPosts} from '../../../redux/actions/chatRoom_action';
 export class MainPanel extends Component {
+
+    messageEndRef = React.createRef();
     state ={
         messages: [],
         messagesRef: firebase.database().ref("messages"),
@@ -29,6 +31,12 @@ export class MainPanel extends Component {
         this.removeListeners(this.state.listenerLists)
     }
 
+
+    componentDidUpdate() {
+        if(this.messageEndRef){
+            this.messageEndRef.scrollIntoView({behavior:"smooth"})
+        }
+    }
     removeListeners = (listeners) =>{
         listeners.forEach(listener =>{
             listener.ref.child(listener.id).off(listener.event)
@@ -174,6 +182,7 @@ export class MainPanel extends Component {
                         this.renderMessages(messages)}
 
                         {this.renderTypingUsers(typingUsers)}
+                        <div ref={node => (this.messageEndRef = node)} />
                     </div>
 
                     <MessageForm/>
